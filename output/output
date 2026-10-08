@@ -1,0 +1,55 @@
+ ==== STUDENT DATABASE MANAGEMENT =====
+1. Add Student
+2. Display Students
+3. Search Student
+4. Delete Student
+5. Exit
+
+Enter your choice: 1
+[1:10 AM, 10/9/2026] Shivprasad Ghawat: Enter Student ID: 101
+Enter Name: Rahul Patil
+Enter Roll Number: 10
+Enter Age: 19
+Enter Department: Computer Engineering
+
+Student added successfully!
+[1:11 AM, 10/9/2026] Shivprasad Ghawat: Enter your choice: 1
+
+Enter Student ID: 102
+Enter Name: Priya Sharma
+Enter Roll Number: 11
+Enter Age: 20
+Enter Department: Electronics Engineering
+
+Student added successfully!
+ Enter your choice: 2
+
+--- Student Records ---
+
+Student ID: 101
+Name: Rahul Patil
+Roll Number: 10
+Age: 19
+Department: Computer Engineering
+-----------------------
+
+Student ID: 102
+Name: Priya Sharma
+Roll Number: 11
+Age: 20
+Department: Electronics Engineering
+-----------------------
+ Enter your choice: 3
+
+Enter Student ID to search: 102
+
+Student Found!
+Name: Priya Sharma
+Roll Number: 11
+Age: 20
+Department: Electronics Engineering
+Enter your choice: 4
+
+Enter Student ID to delete: 101
+
+Student deleted successfully
