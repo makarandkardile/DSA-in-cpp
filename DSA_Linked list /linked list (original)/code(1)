@@ -1,0 +1,169 @@
+
+#include <iostream>
+#include <string>
+#include <thread>
+#include <chrono>
+using namespace std;
+
+struct Node {
+    string signalName;
+    int greenTime;
+    Node* next;
+
+    Node(string name, int time) {
+        signalName = name;
+        greenTime = time;
+        next = nullptr;
+    }
+};
+
+class TrafficSignal {
+private:
+    Node* head;
+
+public:
+    TrafficSignal() {
+        head = nullptr;
+    }
+
+    void addSignal(string name, int time) {
+        Node* newNode = new Node(name, time);
+
+        if (head == nullptr) {
+            head = newNode;
+            newNode->next = head;
+            return;
+        }
+
+        Node* temp = head;
+
+        while (temp->next != head) {
+            temp = temp->next;
+        }
+
+        temp->next = newNode;
+        newNode->next = head;
+    }
+
+    void displaySignals() {
+        if (head == nullptr) {
+            cout << "No signals available.\n";
+            return;
+        }
+
+        Node* temp = head;
+        cout << "\n--- Traffic Signal Sequence ---\n";
+
+        do {
+            cout << temp->signalName
+                 << " | Green time: "
+                 << temp->greenTime << " seconds\n";
+            temp = temp->next;
+        } while (temp != head);
+    }
+
+    void startScheduling() {
+        if (head == nullptr) {
+            cout << "Please add signals first.\n";
+            return;
+        }
+
+        Node* current = head;
+        char choice;
+
+        do {
+            cout << "\n-----------------------------\n";
+            cout << "Active Signal: " << current->signalName << '\n';
+            cout << "Status: GREEN\n";
+            cout << "Duration: " << current->greenTime
+                 << " seconds\n";
+
+            cout << "Press Enter after the interval to continue.";
+            cout << "\nEnter q to stop, then press Enter.\n";
+
+            // Interactive simulation: wait for user input.
+            string input;
+            getline(cin, input);
+
+            if (input == "q" || input == "Q") {
+                break;
+            }
+
+            cout << current->signalName
+                 << " signal is now RED.\n";
+
+            current = current->next;
+
+        } while (true);
+
+        cout << "\nTraffic signal scheduling stopped.\n";
+    }
+
+    ~TrafficSignal() {
+        if (head == nullptr) return;
+
+        Node* current = head->next;
+
+        while (current != head) {
+            Node* temp = current;
+            current = current->next;
+            delete temp;
+        }
+
+        delete head;
+        head = nullptr;
+    }
+};
+
+int main() {
+    TrafficSignal system;
+    int n;
+
+    cout << "SMART TRAFFIC SIGNAL SCHEDULING SYSTEM\n";
+    cout << "Using Circular Linked List\n\n";
+
+    cout << "Enter number of traffic signals: ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "Invalid number of signals.\n";
+        return 0;
+    }
+
+    cin.ignore(10000, '\n');
+
+    for (int i = 0; i < n; i++) {
+        string name;
+        int duration;
+
+        cout << "\nEnter signal/road name "
+             << i + 1 << ": ";
+        getline(cin, name);
+
+        cout << "Enter green duration in seconds: ";
+        cin >> duration;
+        cin.ignore(10000, '\n');
+
+        if (duration <= 0 || name.empty()) {
+            cout << "Invalid input. Please run again "
+                 << "with a valid name and duration.\n";
+            return 0;
+        }
+
+        system.addSignal(name, duration);
+    }
+
+    system.displaySignals();
+
+    string start;
+    cout << "\nStart scheduling? (y/n): ";
+    getline(cin, start);
+
+    if (start == "y" || start == "Y") {
+        system.startScheduling();
+    } else {
+        cout << "Scheduling not started.\n";
+    }
+
+    return 0;
+}
