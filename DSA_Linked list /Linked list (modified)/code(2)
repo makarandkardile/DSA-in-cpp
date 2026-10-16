@@ -1,0 +1,152 @@
+
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <string>
+#include <limits>
+using namespace std;
+
+struct Signal {
+    string name;
+    int greenTime;
+};
+
+class TrafficSignalSystem {
+private:
+    queue<Signal> signalQueue;
+    stack<Signal> historyStack;
+
+public:
+    void addSignal(string name, int duration) {
+        Signal s{name, duration};
+        signalQueue.push(s);
+    }
+
+    void displayQueue() {
+        queue<Signal> temp = signalQueue;
+
+        cout << "\n--- Traffic Signal Queue ---\n";
+        while (!temp.empty()) {
+            cout << temp.front().name
+                 << " | Green: "
+                 << temp.front().greenTime
+                 << " seconds\n";
+            temp.pop();
+        }
+    }
+
+    void displayHistory() {
+        if (historyStack.empty()) {
+            cout << "\nNo signal history available.\n";
+            return;
+        }
+
+        stack<Signal> temp = historyStack;
+
+        cout << "\n--- Signal History (Latest First) ---\n";
+        while (!temp.empty()) {
+            cout << temp.top().name << " | "
+                 << temp.top().greenTime
+                 << " seconds\n";
+            temp.pop();
+        }
+    }
+
+    void scheduleSignals() {
+        if (signalQueue.empty()) {
+            cout << "No signals available.\n";
+            return;
+        }
+
+        string command;
+
+        while (true) {
+            Signal current = signalQueue.front();
+            signalQueue.pop();
+
+            cout << "\nActive Signal: " << current.name;
+            cout << "\nStatus: GREEN";
+            cout << "\nDuration: " << current.greenTime
+                 << " seconds\n";
+
+            cout << "Press Enter for next signal or q to stop: ";
+            getline(cin, command);
+
+            if (command == "q" || command == "Q") {
+                // Restore current signal to the front.
+                queue<Signal> temp;
+                temp.push(current);
+
+                while (!signalQueue.empty()) {
+                    temp.push(signalQueue.front());
+                    signalQueue.pop();
+                }
+
+                signalQueue = temp;
+                cout << "Scheduling stopped.\n";
+                break;
+            }
+
+            cout << current.name << " signal is now RED.\n";
+
+            // Store completed signal in history.
+            historyStack.push(current);
+
+            // Reinsert at rear for repeated scheduling.
+            signalQueue.push(current);
+        }
+    }
+};
+
+int main() {
+    TrafficSignalSystem system;
+    int n;
+
+    cout << "SMART TRAFFIC SIGNAL SCHEDULING SYSTEM\n";
+    cout << "Using Stack and Queue\n";
+
+    cout << "\nEnter number of signals: ";
+    if (!(cin >> n) || n <= 0) {
+        cout << "Invalid number of signals.\n";
+        return 0;
+    }
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    for (int i = 0; i < n; i++) {
+        string name;
+        int duration;
+
+        cout << "\nEnter road name " << i + 1 << ": ";
+        getline(cin, name);
+
+        cout << "Enter green duration in seconds: ";
+        if (!(cin >> duration) || duration <= 0 || name.empty()) {
+            cout << "Invalid signal name or duration.\n";
+            return 0;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        system.addSignal(name, duration);
+    }
+
+    system.displayQueue();
+
+    string choice;
+    cout << "\nStart scheduling? (y/n): ";
+    getline(cin, choice);
+
+    if (choice == "y" || choice == "Y") {
+        system.scheduleSignals();
+    }
+
+    cout << "\nDisplay signal history? (y/n): ";
+    getline(cin, choice);
+
+    if (choice == "y" || choice == "Y") {
+        system.displayHistory();
+    }
+
+    cout << "\nProgram ended.\n";
+    return 0;
+}
