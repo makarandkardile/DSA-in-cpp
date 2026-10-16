@@ -1,0 +1,191 @@
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+struct Node {
+    string data;
+    vector<Node*> children;
+
+    Node(string value) {
+        data = value;
+    }
+};
+
+// Construct a general tree
+Node* createTree(string name) {
+    int n;
+    cout << "\nEnter number of nodes in " << name << ": ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "Invalid number of nodes!\n";
+        return nullptr;
+    }
+
+    vector<Node*> nodes;
+
+    for (int i = 0; i < n; i++) {
+        string value;
+        cout << "Enter value of node " << i + 1 << ": ";
+        cin >> value;
+        nodes.push_back(new Node(value));
+    }
+
+    cout << "\nNode IDs:\n";
+    for (int i = 0; i < n; i++) {
+        cout << i + 1 << " = " << nodes[i]->data << '\n';
+    }
+
+    cout << "\nNode 1 is the root.\n";
+
+    for (int i = 0; i < n; i++) {
+        int count;
+        cout << "Enter number of children of "
+             << nodes[i]->data << ": ";
+        cin >> count;
+
+        if (count < 0 || count >= n) {
+            cout << "Invalid number of children!\n";
+            for (Node* node : nodes)
+                delete node;
+            return nullptr;
+        }
+
+        for (int j = 0; j < count; j++) {
+            int id;
+            cout << "Enter child node ID: ";
+            cin >> id;
+
+            if (id < 1 || id > n || id == i + 1) {
+                cout << "Invalid child ID!\n";
+                for (Node* node : nodes)
+                    delete node;
+                return nullptr;
+            }
+
+            nodes[i]->children.push_back(nodes[id - 1]);
+        }
+    }
+
+    // Validate parent counts
+    vector<int> parents(n, 0);
+
+    for (int i = 0; i < n; i++) {
+        for (Node* child : nodes[i]->children) {
+            for (int j = 0; j < n; j++) {
+                if (nodes[j] == child)
+                    parents[j]++;
+            }
+        }
+    }
+
+    bool valid = (parents[0] == 0);
+
+    for (int i = 1; i < n; i++) {
+        if (parents[i] != 1)
+            valid = false;
+    }
+
+    // Check reachability and cycles
+    vector<int> visited(n, 0);
+    bool cycle = false;
+    int total = 0;
+
+    auto dfs = [&](auto&& self, Node* node) -> void {
+        int idx = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (nodes[i] == node) {
+                idx = i;
+                break;
+            }
+        }
+
+        if (idx == -1) return;
+
+        if (visited[idx] == 1) {
+            cycle = true;
+            return;
+        }
+
+        if (visited[idx] == 2) return;
+
+        visited[idx] = 1;
+        total++;
+
+        for (Node* child : node->children)
+            self(self, child);
+
+        visited[idx] = 2;
+    };
+
+    dfs(dfs, nodes[0]);
+
+    if (!valid || cycle || total != n) {
+        cout << "Invalid tree structure!\n";
+        for (Node* node : nodes)
+            delete node;
+        return nullptr;
+    }
+
+    return nodes[0];
+}
+
+// Compare two trees recursively
+bool sameTree(Node* a, Node* b) {
+    if (a == nullptr || b == nullptr)
+        return a == b;
+
+    if (a->data != b->data)
+        return false;
+
+    if (a->children.size() != b->children.size())
+        return false;
+
+    for (size_t i = 0; i < a->children.size(); i++) {
+        if (!sameTree(a->children[i], b->children[i]))
+            return false;
+    }
+
+    return true;
+}
+
+// Free tree memory
+void deleteTree(Node* root) {
+    if (root == nullptr) return;
+
+    for (Node* child : root->children)
+        deleteTree(child);
+
+    delete root;
+}
+
+int main() {
+    cout << "COMPARISON OF TWO GENERAL TREES\n";
+
+    Node* tree1 = createTree("Tree 1");
+
+    if (tree1 == nullptr)
+        return 0;
+
+    Node* tree2 = createTree("Tree 2");
+
+    if (tree2 == nullptr) {
+        deleteTree(tree1);
+        return 0;
+    }
+
+    cout << "\n--- Comparison Result ---\n";
+
+    if (sameTree(tree1, tree2))
+        cout << "Both trees are identical.\n";
+    else
+        cout << "Both trees are different.\n";
+
+    deleteTree(tree1);
+    deleteTree(tree2);
+
+    return 0;
+}
