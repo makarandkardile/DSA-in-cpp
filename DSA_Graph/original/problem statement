@@ -1,0 +1,1 @@
+Develop a C++ program to represent substations as vertices and roads as weighted edges, where weights represent maintenance travel distances. Apply Dijkstra's algorithm from a maintenance depot and display the shortest distance and route to a selected substation.
